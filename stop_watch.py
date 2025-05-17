@@ -1,5 +1,6 @@
 from time import monotonic
-
+import os
+import platform
 from textual.app import App, ComposeResult
 from textual.containers import HorizontalGroup, VerticalScroll
 from textual.reactive import reactive
@@ -69,6 +70,7 @@ class Stopwatch(HorizontalGroup):
 
 
 class StopwatchApp(App):
+
     """A Textual app to manage stopwatches."""
 
     CSS_PATH = "stop_watch.tcss"
@@ -78,6 +80,23 @@ class StopwatchApp(App):
         ("a", "add_stopwatch", "Add"),
         ("r", "remove_stopwatch", "Remove"),
     ]
+
+
+    def on_mount(self) -> None:
+        if platform.system() == "Darwin":  # macOS
+            # AppleScript ile Terminal.app pencere boyutunu ayarla
+            applescript = """
+            tell application "Terminal"
+                activate
+                tell window 1
+                    set number of columns to 80 
+                    set number of rows to 50 
+                end tell
+            end tell
+            """
+            os.system(f"osascript -e '{applescript}'")
+        else:
+            self.notify("Bu platformda terminal boyutu ayarı desteklenmiyor.", severity="warning")
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
@@ -106,4 +125,4 @@ class StopwatchApp(App):
 
 if __name__ == "__main__":
     app = StopwatchApp()
-    app.run()
+    app.run(size=(100, 30))
